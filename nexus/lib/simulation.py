@@ -1080,7 +1080,7 @@ class Simulation(NexusCore):
             self.finished = self.job.finished
         else:
             if not self.job.finished and self.process_id is not None:
-                machine = job.get_machine()
+                machine = self.job.get_machine()
                 if isinstance(machine,Supercomputer):
                     self.job.finished = self.process_id not in machine.system_queue
                 #end if

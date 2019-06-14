@@ -292,6 +292,7 @@ class Pwscf(Simulation):
         output = fobj.read()
         fobj.close()
         not_converged = 'convergence NOT achieved'  in output
+        data_written  = 'Writing output data file' in output
         time_exceeded = 'Maximum CPU time exceeded' in output
         user_stop     = 'Program stopped by user request' in output
         run_finished  = 'JOB DONE' in output
@@ -308,10 +309,17 @@ class Pwscf(Simulation):
             self.input.control.restart_mode = 'restart'
             self.reset_indicators()
         else:
+
+            # Failure case
+
             definite_failure |= not_converged
             definite_failure |= time_exceeded
             definite_failure |= user_stop
             definite_failure |= not run_finished
+
+            # Success cases
+
+            definite_success |= data_written and not user_stop
 
             if definite_failure:
                 self.failed = True
