@@ -951,6 +951,24 @@ class Workstation(Machine):
     #end def process_job_options
 
 
+    def requeue_job(self,job):
+        if isinstance(job,Job):
+            jid = job.internal_id
+            pid = job.system_id
+            if pid is None:
+                self.error('job {0} does not have a process id issued by the scheduler'.format(jid))
+            #end if
+            #self.process_job(job)
+            self.jobs[jid] = job
+            job.status = job.states.running
+            self.running.add(jid)
+            process = obj(job=job)
+            self.processes[pid] = process
+        else:
+            self.error('requeue_job received non-Job instance '+job.__class__.__name__)
+        #end if
+    #end def requeue_job
+
     def write_job_states(self,title=''):
         self.log(title,n=2)
         n=3
@@ -997,10 +1015,17 @@ class Workstation(Machine):
         self.validate()
         done = []
         for pid,process in self.processes.iteritems():
+            close_files = False
             if nexus_core.generate_only or not nexus_core.monitor:
                 qpid,status = pid,0
             else:
-                qpid,status = os.waitpid(pid,os.WNOHANG) 
+                # first check if the process exists (does not kill it)
+                try:
+                    qpid,status = os.waitpid(pid,os.WNOHANG)
+                    close_files = True
+                except OSError:
+                    qpid,status = pid,1
+                #end try
             #end if
             if pid==qpid:
                 job = process.job
@@ -1011,7 +1036,7 @@ class Workstation(Machine):
                 self.running.remove(iid)
                 self.finished.add(iid)
                 done.append(pid)
-                if not nexus_core.generate_only:
+                if not nexus_core.generate_only and close_files:
                     job.out.close()
                     job.err.close()
                 #end if

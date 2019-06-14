@@ -283,6 +283,10 @@ class Pwscf(Simulation):
 
 
     def check_sim_status(self):
+
+        definite_success = False
+        definite_failure = False
+
         outfile = os.path.join(self.locdir,self.outfile)
         fobj = open(outfile,'r')
         output = fobj.read()
@@ -291,18 +295,31 @@ class Pwscf(Simulation):
         time_exceeded = 'Maximum CPU time exceeded' in output
         user_stop     = 'Program stopped by user request' in output
         run_finished  = 'JOB DONE' in output
+
+        error_in_routine = 'Error in routine' in output
+        definite_failure |= error_in_routine
+        
         restartable = not_converged or time_exceeded or user_stop
-        restart = run_finished and self.restartable and restartable
+        restartable &= not definite_failure
+        restartable &= not run_finished
+        restart = self.restartable and restartable
         if restart:
             self.save_attempt()
             self.input.control.restart_mode = 'restart'
             self.reset_indicators()
         else:
-            error_in_routine = 'Error in routine' in output
-            failed = not_converged or time_exceeded or user_stop
-            failed |= error_in_routine
-            self.finished = run_finished
-            self.failed   = failed
+            definite_failure |= not_converged
+            definite_failure |= time_exceeded
+            definite_failure |= user_stop
+            definite_failure |= not run_finished
+
+            if definite_failure:
+                self.failed = True
+            elif definite_success:
+                self.failed = False
+            else: #you don't know
+                self.failed = None
+            #end if
         #end if
     #end def check_sim_status
 

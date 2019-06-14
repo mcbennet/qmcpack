@@ -406,7 +406,7 @@ class Qmcpack(Simulation):
             if not isinstance(sim,Qmcpack):
                 self.error('incorporating wavefunction from '+sim.__class__.__name__+' has not been implemented')
             #end if
-            print '        getting optimal wavefunction from: '+result.opt_file
+            #print '        getting optimal wavefunction from: '+result.opt_file
             opt = QmcpackInput(result.opt_file)
             qs = input.get('qmcsystem')
             qs.wavefunction = opt.qmcsystem.wavefunction.copy()
@@ -459,7 +459,8 @@ class Qmcpack(Simulation):
 
         self.succeeded = ran_to_end
         self.failed    = aborted
-        self.finished  = files_exist and (self.job.finished or ran_to_end) and not aborted 
+        self.finished  = True
+        #self.finished  = files_exist and (self.job.finished or ran_to_end) and not aborted 
 
         if cusp_run and files_exist:
             for cuspfile in cuspfiles:

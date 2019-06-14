@@ -74,7 +74,7 @@ from developer import unavailable,ci
 from generic import obj
 from periodic_table import is_element
 from physical_system import PhysicalSystem
-from machines import Job
+from machines import Job,Supercomputer
 from pseudopotential import ppset
 from nexus_base import NexusCore,nexus_core
 
@@ -1078,24 +1078,41 @@ class Simulation(NexusCore):
         self.pre_check_status()
         if nexus_core.generate_only: 
             self.finished = self.job.finished
-        elif self.job.finished:
-            should_check = True
-            if self.outfile!=None:
-                outfile = os.path.join(self.locdir,self.outfile)
-                should_check &= os.path.exists(outfile)
+        else:
+            if not self.job.finished and self.process_id is not None:
+                machine = job.get_machine()
+                if isinstance(machine,Supercomputer):
+                    self.job.finished = self.process_id not in machine.system_queue
+                #end if
             #end if
-            if self.errfile!=None:
-                errfile = os.path.join(self.locdir,self.errfile)
-                should_check &= os.path.exists(errfile)
-            #end if
-            if not self.finished and should_check:
-                self.check_sim_status()
-            #end if
-            if self.failed:
-                self.finished = True
-                # commented out block dependents 15/09/30
-                # try to rely on persistent failed flag instead
-                #self.block_dependents() 
+            if self.job.finished:
+                should_check = True
+                if self.outfile is not None:
+                    outfile = os.path.join(self.locdir,self.outfile)
+                    should_check &= os.path.exists(outfile)
+                #end if
+                if self.errfile is not None:
+                    errfile = os.path.join(self.locdir,self.errfile)
+                    should_check &= os.path.exists(errfile)
+                #end if
+                if not self.finished and should_check:
+                    self.check_sim_status()
+
+                    # apply default assumption about success/failure
+                    # in the face of incomplete knowledge
+                    #   going with the assumption of failure right now
+                    if self.failed is None:
+                        self.failed = True
+                    #end if
+
+                    self.finished = True
+                    #if self.failed:
+                    #    self.finished = True
+                    #    # commented out block dependents 15/09/30
+                    #    # try to rely on persistent failed flag instead
+                    #    #self.block_dependents() 
+                    ##end if
+                #end if
             #end if
         #end if
         if self.finished:
