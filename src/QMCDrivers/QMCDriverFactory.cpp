@@ -174,8 +174,10 @@ std::unique_ptr<QMCDriverInterface> QMCDriverFactory::newQMCDriver(std::unique_p
       createQMCDriver(cur, das, qmc_system, particle_pool, wavefunction_pool, hamiltonian_pool, population, comm);
   //initialize QMCDriver::myComm
   //branchEngine has to be transferred to a new QMCDriver
-  if (branchEngine)
+  if (branchEngine){
+    branchEngine->resetRun(cur);
     new_driver->setBranchEngine(branchEngine);
+  }
   infoSummary.flush();
   infoLog.flush();
   //add trace information
