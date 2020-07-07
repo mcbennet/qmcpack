@@ -529,6 +529,23 @@ class SemilocalPP(Pseudopotential):
     #end def remove_component
 
 
+    # test needed
+    def semilocal_to_pseudohamiltonian(self,lmatch=('s','p')):
+        if lmatch[0] not in self.components or lmatch[1] not in self.components:
+            self.error('cannot match requested component potentials\none or both requested potentials are not present\nrequested potentials: {0}\npotentials present: {1}'.format(lmatch,list(self.components.keys())))
+        #end if
+        if lmatch[0]==lmatch[1]:
+            self.error('must choose two distinct channels to match.\n channels chosen: {0} and {1}'.format(lmatch[0],lmatch[1]))
+        #end if
+        if self.local in lmatch:
+            print('MATCH LOCAL')
+        else:
+            print('DO NOT MATCH LOCAL')
+        #end if
+        return
+    #end def semilocal_to_pseudohamiltonian
+
+
     def has_local(self):
         return self.local in self.components
     #end def has_local
@@ -595,7 +612,7 @@ class SemilocalPP(Pseudopotential):
 
     # test needed
     def add_L2(self,v):
-        self.set_component('L2',guard=True)
+        self.set_component('L2',v,guard=True)
     #end def add_L2
 
 
@@ -1246,7 +1263,6 @@ class SemilocalPP(Pseudopotential):
             #end if
         #end if 
     #end def plot_L2
-
 
     def plot_nonlocal_polar(self,show=True,lmax=10,rmin=0.01,rmax=2.0,nr=100,nt=100,levels=100,label=''):
         from scipy.special import eval_legendre as legendre
