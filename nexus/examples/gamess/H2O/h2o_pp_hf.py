@@ -10,11 +10,11 @@ settings(
     status_only   = 0,
     generate_only = 0,
     sleep         = 3,
-    machine       = 'ws16',
-    ericfmt       = '/your/path/to/ericfmt.dat'
+    machine       = 'ws8',
+    ericfmt       = '/home/mcbennett/Programs/src/gamess/auxdata/ericfmt.dat'
     )
 
-gms_job = job(cores=16,app='gamess.x')
+gms_job = job(cores=8,app='gamess.x')
 
 h2o = generate_physical_system(
     # full atomic/electronic structure
