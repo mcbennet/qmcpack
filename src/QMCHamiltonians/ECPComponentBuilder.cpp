@@ -31,7 +31,7 @@ ECPComponentBuilder::ECPComponentBuilder(const std::string& aname, Communicate* 
     : MPIObjectBase(c),
       NumNonLocal(0),
       Lmax(0),
-      Nrule(4),
+      Nrule(7),
       Srule(8),
       AtomicNumber(0),
       Zeff(0),
