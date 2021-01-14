@@ -1413,6 +1413,56 @@ class SemilocalPP(Pseudopotential):
     #end def plot_nonlocal_polar
 
 
+    def insert_semilocal_in_upf(self,upf_in=None,upf_out=None):
+        if upf_in is None:
+            self.error('the filepath to a upf file must be passed to this function via "upf_in" argument')
+        #end if
+        if upf_out is None:
+            self.error('a filepath to an output file must be given via "upf_out" argument')
+        #end if
+
+
+        # TEST 
+        # 
+        # 
+        #   #!/usr/bin/env python3
+        #   
+        #   from pseudopotential import GaussianPP,gamessPPFile,PseudoFile,Pseudopotential
+        #   import sys, getopt
+        #   
+        #   inputfile = ''
+        #   outputfile=''
+        #   try:
+        #       opts, args = getopt.getopt(sys.argv[1:],"hi:o:",["ifile=","ofile="])
+        #   except getopt.GetoptError:
+        #      print('gms2xml -i <inputppfile>')
+        #      sys.exit(2)
+        #   for opt, arg in opts:
+        #      if opt == '-h':
+        #         print('gms2xml -i <inputppfile>')
+        #         sys.exit()
+        #      elif opt in ("-i", "--ifile"):
+        #         inputfile = arg
+        #      elif opt in ("-o", "--ofile"):
+        #         outputfile = arg
+        #   #end for
+        #   
+        #   print('\nInput file is: ', inputfile)
+        #   
+        #   # GAMESS TO XML
+        #   filepath=inputfile
+        #   ppf = gamessPPFile(filepath)
+        #   pp = GaussianPP()
+        #   pp.read_text(ppf.pp_text,format='gamess')
+        #   pp.insert_semilocal_in_upf('test.upf')
+        #   #pp.write_qmcpack(outputfile)
+
+
+
+
+    #end def insert_semilocal_in_upf
+
+
     def write_qmcpack(self,filepath=None):
         self.update_rcut(tol=1e-5,optional=True)
 
