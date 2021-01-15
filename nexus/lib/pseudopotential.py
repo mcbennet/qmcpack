@@ -1421,7 +1421,6 @@ class SemilocalPP(Pseudopotential):
             self.error('a filepath to an output file must be given via "upf_out" argument')
         #end if
 
-
         # TEST 
         # 
         # 
@@ -1457,6 +1456,39 @@ class SemilocalPP(Pseudopotential):
         #   pp.insert_semilocal_in_upf('test.upf')
         #   #pp.write_qmcpack(outputfile)
 
+        with open(upf_in,'r') as f:
+            upf_text = f.read()
+        #end with
+        f = open(upf_out,'w')
+        write_sl = False
+        nxs_info = '''
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Semi-local Potential inserted by Nexus
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+'''
+        for line in upf_text.splitlines():
+            # Append to PP_INFO
+            if '</pp_info>' in line.lower():
+                f.write(nxs_info)
+                f.write(line+'\n')
+            elif '</pp_nonlocal>' in line.lower(): 
+                f.write(line+'\n')
+                write_sl = True
+            elif write_sl:
+                # Check that semi-local is not present
+                if '<pp_semilocal>' in line.lower():
+                    self.error('upf file already contains semilocal potential')
+                #end if
+                f.write('<PP_SEMILOCAL>\n')
+                f.write('WRITE SEMILOCAL TERMS HERE\n')
+                f.write('</PP_SEMILOCAL>\n')
+                write_sl = False
+                f.write(line+'\n')
+            else:
+                f.write(line+'\n')
+            #end if
+        #end for
 
 
 
