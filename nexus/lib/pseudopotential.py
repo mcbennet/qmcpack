@@ -53,7 +53,7 @@ from basisset import process_gaussian_text,GaussianBasisSet
 from physical_system import PhysicalSystem
 from plotting import *
 from debug import *
-#from testing import *
+from testing import *
 
 try:
     import matplotlib.pyplot as plt
@@ -2041,7 +2041,7 @@ class GaussianPP(SemilocalPP):
         remove = []
         for l in np.arange(self.lmax+1):
             for term_idx,term in enumerate(self.components[chan_labels[l]]):
-                if abs(term.coeff)<1e-12 and len(self.components[chan_labels[l]])>1:
+                if abs(term.coeff)<5e-8 and len(self.components[chan_labels[l]])>1:
                     remove.append((chan_labels[l],term_idx))
                 #end if
             #end for
@@ -2111,7 +2111,7 @@ class GaussianPP(SemilocalPP):
                                 for ti in mlist: 
                                     coeff += self.components[chan_labels[l]][ti].coeff
                                 #end for
-                                if abs(coeff)>1e-12:
+                                if abs(coeff)>5e-8:
                                     mod_term.coeff = coeff
                                     comps[chan_labels[l]].append(mod_term)
                                 #end if
@@ -2148,7 +2148,7 @@ class GaussianPP(SemilocalPP):
         p2 = self.copy()
         p2.transform_to_truncated_L2(keep='s p',lmax=p2.lmax)
         p2.simplify()
-        return object_eq(p2,p1)
+        return object_eq(p2,p1,rtol=5e-8)
     #end def is_truncated_L2
 
 
