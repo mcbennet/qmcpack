@@ -245,6 +245,7 @@ class PwscfAnalyzer(SimulationAnalyzer):
             bands.up = obj()
             bands.down = obj()
             polarized = False
+            self.input.system.nspin =1 # MCB
             if self.input.system.nspin > 1:
                 polarized = True
             #end if
@@ -872,15 +873,59 @@ class PwscfAnalyzer(SimulationAnalyzer):
                 rcParams.update(params)
             except(ImportError, RuntimeError):
                 success = False
-            if not success:
+            #if not success:
                 figure,plot,xlabel,ylabel,title,show,ylim,legend,xlim,rcParams,savefig,bar,xticks,subplot,grid,setp,errorbar,loglog,semilogx,semilogy,text = unavailable('matplotlib.pyplot','figure','plot','xlabel','ylabel','title','show','ylim','legend','xlim','rcParams','savefig','bar','xticks','subplot','grid','setp','errorbar','loglog','semilogx','semilogy','text')
             #end if
             fig    = figure()
             ax     = gca()
-            kpath  = get_kpath(structure=self.input_structure, check_standard=False)
+            if not 'input_structure' in self:
+                from structure import generate_structure
+                self.input_structure = generate_structure(
+                                units = 'B', #self.input.cell_parameters.specifier,
+                                axes  = self.input.cell_parameters.vectors,
+                                elem  = self.input.atomic_positions.atoms,
+                                pos = self.input.atomic_positions.positions,
+                            )
+
+                #input
+                #  atomic_positions
+                #    atoms           = ['Mn', 'Bi', 'Bi', 'Te', 'Te', 'Te', 'Te']
+                #    positions       = [[ 0.00000000e+00  0.00000000e+00  0.00000000e+00]
+                #                       [ 4.09475307e+00  2.36410679e+00  5.86169140e+01]
+                #                       [ 4.09475307e+00  2.36410680e+00  7.02318577e+01]
+                #                       [-0.00000000e+00  4.72821358e+00  6.18471527e+01]
+                #                       [-0.00000000e+00  1.00000000e-08  6.70016190e+01]
+                #                       [ 0.00000000e+00  4.72821358e+00  7.42962633e+01]
+                #                       [ 0.00000000e+00  1.00000000e-08  5.45525084e+01]]
+                #    specifier       = bohr
+                #  end atomic_positions
+                #  atomic_species
+                #    atoms           = ['Bi', 'Mn', 'Te']
+                #    specifier       =
+                #    masses
+                #      Bi              = 208.98
+                #      Mn              = 54.938
+                #      Te              = 127.6
+                #    end masses
+                #    pseudopotentials
+                #      Bi              = Bi.upf
+                #      Mn              = Mn.upf
+                #      Te              = Te.upf
+                #    end pseudopotentials
+                #  end atomic_species
+                #  cell_parameters
+                #    specifier       = bohr
+                #    vectors         = [[ 4.09475307  2.36410679 25.76975434]
+                #                       [-4.09475307  2.36410679 25.76975434]
+                #                       [-0.         -4.72821357 25.76975434]]
+                #  end cell_parameters
+
+
+            #end if
+            kpath  = get_kpath(structure=self.input_structure, check_standard=True)
             x      = kpath['explicit_path_linearcoords']
             labels = kpath['explicit_kpoints_labels']
-            nbands = self.input.system.nbnd
+            nbands = len(self.bands.up[0].eigs) # self.input.system.nbnd
             for nb in range(nbands):
                 y = []
                 for bi in self.bands.up:
